@@ -13,49 +13,103 @@ namespace GameOfWar
             "Hearts", "Diamonds", "Clubs", "Spades"
         };
 
+        private List<Card> _cards;
+        public int Count => _cards.Count;
+        public Deck(List<Card> cards, bool isEmptyDeck)
+        {
+            if (cards != null && cards.Count > 0)
+            {
+                _cards = cards;
+                return;
+            }
+            
+            _cards = new List<Card>();
+            if (!isEmptyDeck)
+            {
+                initializeDeck();
+            }
+        }
+      
+        private void initializeDeck()
+        {
+            foreach (string suit in Suits)
+            {
+                for (int i = 0; i < RankNames.Length; i++)
+                {
+                    _cards.Add(new Card(suit, i));
+                }
+            }
+        }
 
-        // Create a public int property Count that returns the Count value from the private collection _cards
+        // I had to look up a better way to do this part, I was struggling lol
 
+        public void Shuffle()
+        {
+            for (int i = _cards.Count - 1; i > 0; i--)
+            {
+                int RSN = Random.Shared.Next(0, i + 1);
+                Card temp = _cards[i];
+                _cards[i] = _cards[RSN];
+                _cards[RSN] = temp;
+            }
+        }
 
-        // Create a private field _cards that is a List<Card>
+        public Card CardAtIndex(int index)
+        {
+            if (index < 0 || index >= _cards.Count)
+            {
+                throw new IndexOutOfRangeException("Index is out of range.");
+            }
+            return _cards[index];
+        }
 
+        public Card PullCardAtIndex(int index)
+        {
+            if (index <0 || index >= _cards.Count)
+            {
+                throw new IndexOutOfRangeException("Index is out of range.");
+            }
 
-        // Create a public constructor that takes two parameter: a List<card> called cards and a boolean value called isEmptyDeck
-        // If cards is not null and has elements in it, assign it to _cards and be done
-        // If cards is null or empty:
-        //     _cards should be initialized as an empty List<Card>
-        //     InitializeDeck() should be called if and only if isEmptyDeck is false
+            Card pulledCard = _cards[index];
+            _cards.RemoveAt(index);
+            return pulledCard;
+        }
 
+      
+        public List<Card> PullAllCards()
+        {
+            List<Card> pulledCards = new List<Card>(_cards);
+            _cards.Clear();
+            return pulledCards;
+        }
 
-        // Create a private void method called InitializeDeck() which does the following:
-        // Use RankNames and Suits in nested loops to generate all 52 combinations of rank and suit and add them to _cards
+        public void PushCard(Card card)
+        {
+            if (card != null)
+            {
+                _cards.Add(card);
+            }
+        }
 
+        public void PushCards(List<Card> cards)
+        {
+            if (cards != null)
+            {
+                _cards.AddRange(cards);
+            }
+        }
+    
+        public List<Card> Deal(int count)
+        {
+            if (count < 0 || count > _cards.Count)
+            {
+                throw new ArgumentOutOfRangeException(nameof(count), "Invalid number");
+            }
 
-        // Create a public void method called Shuffle() which shuffles (rearranges) the cards in _cards
+            List<Card> dealtCards = _cards.GetRange(0, count);
+            _cards.RemoveRange(0, count);
 
-
-        // Create a public method CardAtIndex which takes an int parameter for the index of a card and
-        // returns the card at the index specified, or throws IndexOutOfRangeException if index is too large or too small
-
-
-        // Create a public method PullCardAtIndex which does exactly the same thing as CardAtIndex
-        // with the additional feature that it _removes_ the card from the deck
-
-
-        // Create a public method PullAllCards that returns a list of all of the cards in the deck
-        // and removes them all from the deck, leaving it empty
-
-
-        // Create a public method PushCard that accepts a Card as a parameter and adds it to _cards
-
-
-        // Create a public method PushCards that accepts a List<Card> as a parameter and adds the list to _cards
-        // Be sure to use AddRange and not Add
-
-
-        // Create a public method Deal that accepts an integer representing the number of cards to deal
-        // and then removes that many cards from the deck, returning them as a List<Card>
-        // Be sure to check the size of _cards against the number of cards requested so you don't go out
-        // of bounds
+            return dealtCards;
+        }
     }
 }
